@@ -1,0 +1,52 @@
+.document-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #008080;
+    color: white;
+}
+
+.title {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.page-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.page-controls button {
+    margin: 0 5px;
+    padding: 5px 8px;
+    border: none;
+    background: white;
+    color: #008080;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.page-controls button:disabled {
+    background: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+button.create-annotation {
+    background-color: #007bff;
+    color: white;
+}
+
+button.create-annotation.active {
+    background-color: #0056b3;
+    border: 1px solid #fff;
+}

@@ -1,0 +1,65 @@
+.document-content {
+    flex: 1;
+    overflow: auto;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+
+    .page-wrapper {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        transition: all 0.3s ease-out;
+        position: relative;
+
+        &.page-leave {
+            opacity: 0;
+
+            &.left {
+                transform: translateX(-20px);
+            }
+
+            &.right {
+                transform: translateX(20px);
+            }
+        }
+
+        &.page-enter {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+
+            &.left {
+                transform: translateX(20px);
+            }
+
+            &.right {
+                transform: translateX(-20px);
+            }
+        }
+    }
+
+    .page {
+        position: relative;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        &.creating {
+            cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PGxpbmUgeDE9IjgiIHkxPSIwIiB4Mj0iOCIgeTI9IjE2IiBzdHJva2U9IiMwMDdiZmYiIHN0cm9rZS13aWR0aD0iMiIvPjxsaW5lIHgxPSIwIiB5MT0iOCIgeDI9IjE2IiB5Mj0iOCIgc3Ryb2tlPSIjMDA3YmZmIiBzdHJva2Utd2lkdGg9IjIiLz48L3N2Zz4=") 8 8, crosshair;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .annotation-box {
+            position: absolute;
+            border: 2px dashed #007bff;
+            background: rgba(0, 123, 255, 0.2);
+        }
+    }
+}

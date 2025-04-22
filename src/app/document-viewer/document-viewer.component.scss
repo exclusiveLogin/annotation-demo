@@ -1,0 +1,29 @@
+/* Layout host container */
+:host {
+    display: flex;
+    flex-direction: column;
+    /* fill viewport */
+    background-color: #f0f0f0;
+}
+
+app-document-header {
+    /* header styles are in its own component */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* Scrollable content area only */
+app-document-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Keep pagination pinned at bottom */
+app-document-pagination {
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+    margin: 0 auto;
+}

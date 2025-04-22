@@ -1,0 +1,18 @@
+<div class="document-header">
+  <span class="title">{{ title() }}</span>
+  <div class="page-controls">
+    <button (click)="previousPage.emit()" [disabled]="!canGoPrevious()">Prev</button>
+    <span>{{ currentPage() }} / {{ totalPages() }}</span>
+    <button (click)="nextPage.emit()" [disabled]="!canGoNext()">Next</button>
+    <button class="create-annotation" (click)="createAnnotation.emit()" [class.active]="isAnnotationMode()">
+      Создать аннотацию
+    </button>
+    
+    <div class="zoom-controls">
+      <button (click)="zoomOut.emit()">-</button>
+      <span>{{ (zoomLevel() * 100).toFixed(0) }}%</span>
+      <button (click)="resetZoom.emit()">Сбросить</button>
+      <button (click)="zoomIn.emit()">+</button>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,42 @@
+<ng-container *ngIf="annotations$ | async as annotations">
+  <div class="annotations-layer">
+    <div *ngFor="let annotation of annotations" 
+         class="annotation"
+         [class.selected]="annotation.id === selectedId()"
+         [style.left.px]="annotation.x"
+         [style.top.px]="annotation.y"
+         [style.width.px]="annotation.width"
+         [style.height.px]="annotation.height"
+         [style.background-image]="annotation.imageUrl ? 'url(' + annotation.imageUrl + ')' : ''"
+         [style.background-size]="'contain'"
+         [style.background-repeat]="'no-repeat'"
+         [style.background-position]="'center'"
+         (click)="onAnnotationClick(annotation, $event)">
+      <div *ngIf="annotation.text" class="annotation-content">
+        {{ annotation.text }}
+      </div>
+
+      <img *ngIf="annotation.imageUrl" 
+           [src]="annotation.imageUrl" 
+           [style.width.px]="annotation.width"
+           [style.height.px]="annotation.height"
+           [style.object-fit]="'contain'"
+           alt="Annotation image">
+      
+      <div class="tooltip" 
+           [class.visible]="annotation.id === selectedId()" 
+           (click)="$event.stopPropagation()">
+        <button class="move-button" (mousedown)="onMoveStart($event, annotation); $event.stopPropagation(); $event.preventDefault(); false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>
+          </svg>
+        </button>
+        <button (click)="onDelete(annotation.id)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container> 

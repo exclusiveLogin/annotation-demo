@@ -1,0 +1,38 @@
+<main class="document-content">
+  <div #pageWrapper class="page-wrapper" *ngIf="currentPageData()">
+    <div #pageContainer class="page" 
+         [ngStyle]="{ transform: 'scale(' + zoomLevel() + ')' }"
+         (mousedown)="onMouseDown($event)"
+         (mousemove)="onMouseMove($event)"
+         (mouseup)="onMouseUp()"
+         [class.creating]="annotationMode()">
+      <img [src]="currentPageData()!.imageUrl" [alt]="'Page ' + currentPageData()!.number" />
+      
+      <!-- Обновленный компонент слоя аннотаций -->
+      <app-annotations-layer [page]="currentPageData()!.number"></app-annotations-layer>
+
+      <!-- selection box -->
+      <div *ngIf="box()"
+           class="annotation-box"
+           [ngStyle]="{
+             'left.px': box()!.x,
+             'top.px': box()!.y,
+             'width.px': box()!.width,
+             'height.px': box()!.height
+           }">
+      </div>
+
+      <!-- text + save/cancel -->
+      <app-annotation-input
+        *ngIf="showInput()"
+        [x]="box()!.x"
+        [y]="box()!.y"
+        [width]="box()!.width"
+        [height]="box()!.height"
+        [zoomLevel]="zoomLevel()"
+        (save)="onSave($event)"
+        (cancel)="onCancel()">
+      </app-annotation-input>
+    </div>
+  </div>
+</main> 
