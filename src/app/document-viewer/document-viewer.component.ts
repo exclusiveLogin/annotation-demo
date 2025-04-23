@@ -6,8 +6,11 @@ import { DocumentPaginationComponent } from './components/pagination/document-pa
 import { DataService } from '../services/data.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { map, filter, withLatestFrom } from 'rxjs';
+import { map, filter, withLatestFrom, firstValueFrom } from 'rxjs';
 import { DestroyRef } from '@angular/core';
+import { AnnotationService } from '../services/annotation.service';
+import { AnnotationFileService } from '../services/annotation-file.service';
+import { Annotation } from '../models/annotation/annotation.model';
 
 @Component({
   selector: 'app-document-viewer',
@@ -27,6 +30,8 @@ export class DocumentViewerComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly annotationService = inject(AnnotationService);
+  private readonly annotationFileService = inject(AnnotationFileService);
 
   // UI State
   readonly isCreatingAnnotation = signal<boolean>(false);
@@ -137,5 +142,26 @@ export class DocumentViewerComponent {
 
   onResetZoom(): void {
     this.zoomLevel.set(1);
+  }
+
+  async onSaveAnnotations(): Promise<void> {
+    const currentPage = this.currentPageNumber();
+    const annotations = await firstValueFrom(this.annotationService.getAnnotations(currentPage));
+    this.annotationFileService.saveToFile(annotations);
+  }
+
+  async onLoadAnnotations(file: File): Promise<void> {
+    try {
+      const annotations = await this.annotationFileService.loadFromFile(file);
+      // Очищаем существующие аннотации и добавляем новые
+      for (const annotation of annotations) {
+        // Создаем новую аннотацию без id, так как он будет сгенерирован сервисом
+        const { id, ...annotationData } = annotation;
+        this.annotationService.addAnnotation(annotationData);
+      }
+      console.log('Annotations loaded successfully');
+    } catch (error) {
+      console.error('Failed to load annotations:', error);
+    }
   }
 } 

@@ -13,7 +13,9 @@
     (createAnnotation)="onCreateAnnotation()"
     (zoomIn)="onZoomIn()"
     (zoomOut)="onZoomOut()"
-    (resetZoom)="onResetZoom()">
+    (resetZoom)="onResetZoom()"
+    (saveAnnotations)="onSaveAnnotations()"
+    (loadAnnotations)="onLoadAnnotations($event)">
   </app-document-header>
   
   <main class="document-content">

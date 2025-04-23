@@ -22,7 +22,7 @@ export class AnnotationsLayerComponent implements OnInit, OnDestroy {
 
   readonly page = input.required<number>();
   
-  readonly selectedId = signal<number | null>(null);
+  readonly selectedId = signal<string | null>(null);
   readonly dragState = signal<DragState>({
     isDragging: false,
     startX: 0,
@@ -83,7 +83,7 @@ export class AnnotationsLayerComponent implements OnInit, OnDestroy {
     }
   }
 
-  onDelete(id: number): void {
+  onDelete(id: string): void {
     this.annotationService.deleteAnnotation(id);
     this.annotations$ = this.annotationService.getAnnotations(this.page());
     this.resetSelection();

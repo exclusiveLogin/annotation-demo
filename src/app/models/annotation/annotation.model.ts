@@ -2,7 +2,7 @@
  * Представляет аннотацию на странице документа
  */
 export interface Annotation {
-  id: number;
+  id: string;
   page: number;
   x: number;
   y: number;

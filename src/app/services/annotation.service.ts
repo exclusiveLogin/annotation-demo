@@ -10,7 +10,7 @@ import { Annotation } from '../models/annotation/annotation.model';
 })
 export class AnnotationService {
   // Используем сигнал для хранения аннотаций
-  private readonly annotations = signal<Map<number, Annotation>>(new Map());
+  private readonly annotations = signal<Map<string, Annotation>>(new Map());
   
   // Map для хранения BehaviorSubject для каждой страницы
   private pageAnnotationsSubjects = new Map<number, BehaviorSubject<Annotation[]>>();
@@ -86,7 +86,7 @@ export class AnnotationService {
   /**
    * Удаляет аннотацию
    */
-  deleteAnnotation(id: number): void {
+  deleteAnnotation(id: string): void {
     // Запоминаем страницу перед удалением
     const page = this.annotations().get(id)?.page;
     
@@ -119,9 +119,10 @@ export class AnnotationService {
   }
 
   /**
-   * Генерирует уникальный ID
+   * Генерирует уникальный числовой ID
    */
-  private generateId(): number {
-    return Date.now();
+  private generateId(): string {
+    // Генерируем уникальный ID с помощью crypto UUID
+    return crypto.randomUUID();
   }
 } 
