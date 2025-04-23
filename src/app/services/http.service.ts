@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { Location } from '@angular/common';
 import { Observable } from 'rxjs';
 
 /**
@@ -10,8 +11,11 @@ import { Observable } from 'rxjs';
 })
 export class HttpService {
   private readonly http = inject(HttpClient);
+  private readonly location = inject(Location);
 
   get<T>(url: string, params?: HttpParams, headers?: HttpHeaders): Observable<T> {
-    return this.http.get<T>(url, { params, headers });
+    // Префиксируем URL базовым href приложения
+    const fullUrl = this.location.prepareExternalUrl(url);
+    return this.http.get<T>(fullUrl, { params, headers });
   }
 } 
