@@ -116,3 +116,54 @@
         }
     }
 }
+
+/* Mobile header adjustments */
+@media (max-width: 600px) {
+    .document-header {
+        flex-wrap: wrap;
+        padding: 0.5rem 1rem;
+    }
+
+    .title {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        order: 1;
+    }
+
+    .page-controls {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        width: 100%;
+        justify-content: center;
+        order: 2;
+    }
+
+    .zoom-controls,
+    .annotation-controls {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        width: 100%;
+        justify-content: center;
+        order: 3;
+        margin-left: 0;
+        padding-left: 0;
+        border-left: none;
+        margin-top: 0.5rem;
+    }
+}
+
+/* Icon button styles */
+.icon-button {
+    background: none;
+    border: none;
+    padding: 0.375rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}

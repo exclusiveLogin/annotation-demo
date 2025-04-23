@@ -22,8 +22,23 @@ app-document-content {
 
 /* Keep pagination pinned at bottom */
 app-document-pagination {
-    position: sticky;
+    position: fixed;
     bottom: 0;
     z-index: 100;
     margin: 0 auto;
+}
+
+/* Mobile layout adjustments */
+@media (max-width: 600px) {
+    app-document-header {
+        padding: 8px 0;
+    }
+
+    app-document-content {
+        padding: 8px 0;
+    }
+
+    app-document-pagination {
+        width: 100%;
+    }
 }

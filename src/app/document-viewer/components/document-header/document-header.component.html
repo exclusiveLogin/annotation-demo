@@ -1,9 +1,25 @@
 <div class="document-header">
   <span class="title">{{ title }}</span>
   <div class="page-controls">
-    <button (click)="previousPage.emit()" [disabled]="!canGoPrevious">Назад</button>
-    <span>{{ currentPage }} / {{ totalPages }}</span>
-    <button (click)="nextPage.emit()" [disabled]="!canGoNext">Вперед</button>
+
+    <div class="annotation-controls">
+      <button (click)="saveAnnotations.emit()" class="icon-button" aria-label="Сохранить аннотации">
+        <!-- Floppy disk icon improved -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 21v-8H7v8"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3v6h6"/>
+        </svg>
+      </button>
+      <input type="file" #fileInput (change)="onFileSelected($event)" accept=".json" style="display: none">
+      <button (click)="fileInput.click()" class="icon-button" aria-label="Загрузить аннотации">
+        <!-- Folder icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+        </svg>
+      </button>
+    </div>
+
     <button class="create-annotation" (click)="createAnnotation.emit()" [class.active]="isAnnotationMode">
       Создать аннотацию
     </button>
@@ -14,11 +30,9 @@
       <button (click)="resetZoom.emit()">Сбросить</button>
       <button (click)="zoomIn.emit()">+</button>
     </div>
-
-    <div class="annotation-controls">
-      <button (click)="saveAnnotations.emit()">Сохранить аннотации</button>
-      <input type="file" #fileInput (change)="onFileSelected($event)" accept=".json" style="display: none">
-      <button (click)="fileInput.click()">Загрузить аннотации</button>
-    </div>
+    
+    <button (click)="previousPage.emit()" [disabled]="!canGoPrevious"><</button>
+    <span>{{ currentPage }} / {{ totalPages }}</span>
+    <button (click)="nextPage.emit()" [disabled]="!canGoNext">></button>
   </div>
 </div> 
