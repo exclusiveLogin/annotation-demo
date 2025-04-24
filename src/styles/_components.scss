@@ -1,0 +1,144 @@
+@use 'variables' as *;
+@use 'sass:color';
+
+// Button base styles
+@mixin button-base {
+    padding: $spacing-unit ($spacing-unit * 2);
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc($spacing-unit / 2);
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: #f3f4f6;
+    }
+}
+
+// Button variants mixin
+@mixin button-variant($bg, $color, $border, $hover-bg, $hover-border, $active-bg) {
+    background-color: $bg;
+    color: $color;
+    border-color: $border;
+
+    &:hover:not(:disabled) {
+        background-color: $hover-bg;
+        border-color: $hover-border;
+    }
+
+    &:active {
+        background-color: $active-bg;
+    }
+}
+
+// Common button classes
+.btn {
+    @include button-base();
+
+    &.primary {
+        @include button-variant(white, #333, $border-color, #f5f5f5, $border-color, #d0d0d0);
+    }
+
+    &.danger {
+        @include button-variant(white, #666, $border-color, #e0e0e0, $border-color, #d0d0d0);
+    }
+
+    &.create-annotation {
+        @include button-variant($annotation-color, white, $annotation-color, color.adjust($annotation-color, $lightness: -10%), color.adjust($annotation-color, $lightness: -10%), color.adjust($annotation-color, $lightness: -15%));
+
+        &.active {
+            background-color: color.adjust($annotation-color, $lightness: -15%);
+            border-color: color.adjust($annotation-color, $lightness: -15%);
+        }
+    }
+}
+
+// Icon button
+.icon-button {
+    background: none;
+    border: none;
+    padding: calc($spacing-unit / 2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}
+
+// Input controls
+.input {
+    padding: $spacing-unit ($spacing-unit * 1.5);
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus {
+        outline: none;
+        border-color: #666;
+        box-shadow: 0 0 0 calc($spacing-unit / 2) rgba(102, 102, 102, 0.1);
+    }
+
+    &::placeholder {
+        color: $placeholder-color;
+    }
+}
+
+// Pagination
+.pagination {
+    background-color: $pagination-bg;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: $spacing-unit 0;
+
+    button {
+        margin: 0 calc($spacing-unit / 2);
+        padding: calc($spacing-unit / 2) $spacing-unit;
+        border: none;
+        background: white;
+        color: $pagination-color;
+        border-radius: $border-radius;
+        cursor: pointer;
+
+        &.active {
+            background: $pagination-active-bg;
+            color: white;
+        }
+
+        &:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+    }
+}
+
+// Annotation styles
+.annotation {
+    border: 2px solid $annotation-color;
+    background-color: $annotation-bg;
+
+    &.selected {
+        border-color: $annotation-selected-color;
+        background-color: $annotation-selected-bg;
+    }
+}
+
+// Tooltip
+.tooltip {
+    background: white;
+    border: 1px solid $tooltip-border-color;
+    padding: calc($spacing-unit / 2) $spacing-unit;
+    border-radius: $border-radius;
+    box-shadow: $shadow-level-2;
+}

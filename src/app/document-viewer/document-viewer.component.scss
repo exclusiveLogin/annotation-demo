@@ -1,9 +1,12 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
 /* Layout host container */
 :host {
     display: flex;
     flex-direction: column;
     /* fill viewport */
-    background-color: #f0f0f0;
+    background-color: $secondary-color;
 }
 
 app-document-header {
@@ -29,13 +32,13 @@ app-document-pagination {
 }
 
 /* Mobile layout adjustments */
-@media (max-width: 600px) {
+@include respond-to('sm') {
     app-document-header {
-        padding: 8px 0;
+        padding: $spacing-unit 0;
     }
 
     app-document-content {
-        padding: 8px 0;
+        padding: $spacing-unit 0;
     }
 
     app-document-pagination {

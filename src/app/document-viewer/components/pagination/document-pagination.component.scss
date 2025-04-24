@@ -1,31 +1,7 @@
-.pagination {
-    background-color: #008080;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding: 10px 0;
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/components' as *;
 
-    button {
-        margin: 0 5px;
-        padding: 5px 10px;
-        border: none;
-        background: white;
-        color: #008080;
-        border-radius: 3px;
-        cursor: pointer;
-
-        &.active {
-            background: #006666;
-            color: white;
-        }
-
-        &:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-        }
-    }
-}
-
+// Using the global pagination styles from _components.scss
 :host {
     display: block;
     width: 100%;

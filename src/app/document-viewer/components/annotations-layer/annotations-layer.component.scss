@@ -1,3 +1,7 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/components' as *;
+@use 'sass:color';
+
 .annotations {
     position: absolute;
     top: 0;
@@ -8,8 +12,6 @@
 
 .annotation {
     position: absolute;
-    border: 2px solid #007bff;
-    background-color: rgba(0, 123, 255, 0.1);
     cursor: move;
     display: flex;
     flex-direction: column;
@@ -20,6 +22,10 @@
     transform: scale(1);
     z-index: 10;
 
+    // Using global annotation styles - border and background
+    border: 2px solid $annotation-color;
+    background-color: $annotation-bg;
+
     &.ng-enter {
         opacity: 0;
         transform: scale(0.95);
@@ -27,30 +33,30 @@
     }
 
     &.selected {
-        border-color: #28a745;
-        background-color: rgba(40, 167, 69, 0.1);
-        outline: 2px solid #007bff;
+        border-color: $annotation-selected-color;
+        background-color: $annotation-selected-bg;
+        outline: 2px solid $annotation-color;
     }
 
     &:hover {
-        outline: 2px solid #007bff;
+        outline: 2px solid $annotation-color;
     }
 
     .annotation-content {
         flex: 1;
-        padding: 8px;
+        padding: $spacing-unit;
         overflow: auto;
     }
 
     .annotation-actions {
         display: flex;
         justify-content: flex-end;
-        padding: 4px;
+        padding: calc($spacing-unit / 2);
         background-color: rgba(0, 0, 0, 0.1);
 
         button {
-            margin-left: 4px;
-            padding: 2px 6px;
+            margin-left: calc($spacing-unit / 2);
+            padding: calc($spacing-unit / 4) calc($spacing-unit / 1.5);
             border: none;
             background: none;
             cursor: pointer;
@@ -63,18 +69,18 @@
             }
 
             &.move-button {
-                color: #007bff;
+                color: $annotation-color;
 
                 &:hover {
-                    color: #0056b3;
+                    color: color.adjust($annotation-color, $lightness: -10%);
                 }
             }
 
             &.delete-button {
-                color: #dc3545;
+                color: $danger-color;
 
                 &:hover {
-                    color: #c82333;
+                    color: color.adjust($danger-color, $lightness: -10%);
                 }
             }
         }
@@ -85,15 +91,13 @@
     position: absolute;
     top: -32px;
     right: 0;
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 4px 8px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     z-index: 10;
     opacity: 0;
     transform: translateY(10px);
     transition: all 0.2s ease;
+
+    // Using global tooltip styles
+    @extend .tooltip;
 
     &.visible {
         opacity: 1;
@@ -108,7 +112,7 @@
 .annotation .tooltip button {
     background: none;
     border: none;
-    color: #d00;
+    color: $danger-color;
     cursor: pointer;
     font-size: 12px;
     transition: all 0.2s ease;
