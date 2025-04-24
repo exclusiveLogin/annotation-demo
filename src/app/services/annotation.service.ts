@@ -1,128 +1,97 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { Observable, of, BehaviorSubject, map } from 'rxjs';
+import { Injectable, signal, computed, Signal } from '@angular/core';
 import { Annotation } from '../models/annotation/annotation.model';
 
 /**
  * Сервис для управления аннотациями документа
+ * Использует сигналы Angular для управления состоянием
  */
 @Injectable({
   providedIn: 'root'
 })
 export class AnnotationService {
-  // Используем сигнал для хранения аннотаций
+  // Основное хранилище аннотаций
   private readonly annotations = signal<Map<string, Annotation>>(new Map());
-  
-  // Map для хранения BehaviorSubject для каждой страницы
-  private pageAnnotationsSubjects = new Map<number, BehaviorSubject<Annotation[]>>();
-  
-  // Метод возвращает Observable для обратной совместимости с компонентами, которые ожидают Observable
-  getAnnotations(page: number): Observable<Annotation[]> {
-    // Проверяем, есть ли уже BehaviorSubject для этой страницы
-    if (!this.pageAnnotationsSubjects.has(page)) {
-      // Если нет, создаем новый с начальным значением
-      const initialAnnotations = Array.from(this.annotations().values())
-        .filter(a => a.page === page);
-      
-      this.pageAnnotationsSubjects.set(page, new BehaviorSubject<Annotation[]>(initialAnnotations));
-    }
-    
-    // Возвращаем Observable из существующего BehaviorSubject
-    return this.pageAnnotationsSubjects.get(page)!.asObservable();
+
+  // Вычисляемый сигнал для получения всех аннотаций в виде массива
+  readonly allAnnotations = computed(() =>
+    Array.from(this.annotations().values())
+  );
+
+  /**
+   * Получает аннотации для указанной страницы
+   * @param page Номер страницы
+   * @returns Observable с массивом аннотаций
+   */
+  getAnnotations(page: number): Annotation[] {
+    // Создаем вычисляемый сигнал для фильтрации аннотаций по странице
+    const pageAnnotations = computed(() =>
+      this.allAnnotations().filter(a => a.page === page)
+    );
+
+    return pageAnnotations();
   }
 
   /**
-   * Обновляет все BehaviorSubject для соответствующих страниц
+   * Добавляет новую аннотацию
+   * @param annotation Данные аннотации без ID
+   * @returns Созданная аннотация с ID
    */
-  private updatePageSubjects(): void {
-    // Получаем текущее состояние сигнала
-    const annotationsMap = this.annotations();
-    const allAnnotations = Array.from(annotationsMap.values());
-    
-    // Получаем уникальные номера страниц
-    const pages = new Set(allAnnotations.map(a => a.page));
-    
-    // Обновляем BehaviorSubject для каждой страницы
-    for (const page of pages) {
-      const pageAnnotations = allAnnotations.filter(a => a.page === page);
-      
-      // Если BehaviorSubject для этой страницы существует, обновляем его
-      if (this.pageAnnotationsSubjects.has(page)) {
-        this.pageAnnotationsSubjects.get(page)!.next(pageAnnotations);
-      }
-    }
-  }
-
-  /**
-   * Добавляет аннотацию
-   */
-  addAnnotation(annotation: Omit<Annotation, 'id'>): void {
+  addAnnotation(annotation: Omit<Annotation, 'id'>): Annotation {
     const id = this.generateId();
     const newAnnotation: Annotation = { ...annotation, id };
-    
+
     this.annotations.update(annotationsMap => {
       const newMap = new Map(annotationsMap);
       newMap.set(id, newAnnotation);
       return newMap;
     });
-    
-    // Обновляем BehaviorSubject для соответствующей страницы
-    this.updatePageSubjects();
+
+    return newAnnotation;
   }
 
   /**
-   * Обновляет аннотацию
+   * Обновляет существующую аннотацию
+   * @param annotation Аннотация с обновленными данными
+   * @returns true если аннотация была обновлена, false если аннотация не найдена
    */
-  updateAnnotation(annotation: Annotation): void {
+  updateAnnotation(annotation: Annotation): boolean {
+    if (!this.annotations().has(annotation.id)) {
+      return false;
+    }
+
     this.annotations.update(annotationsMap => {
       const newMap = new Map(annotationsMap);
       newMap.set(annotation.id, annotation);
       return newMap;
     });
-    
-    // Обновляем BehaviorSubject для соответствующей страницы
-    this.updatePageSubjects();
+
+    return true;
   }
 
   /**
-   * Удаляет аннотацию
+   * Удаляет аннотацию по ID
+   * @param id ID аннотации
+   * @returns true если аннотация была удалена, false если аннотация не найдена
    */
-  deleteAnnotation(id: string): void {
-    // Запоминаем страницу перед удалением
-    const page = this.annotations().get(id)?.page;
-    
+  deleteAnnotation(id: string): boolean {
+    if (!this.annotations().has(id)) {
+      return false;
+    }
+
     this.annotations.update(annotationsMap => {
       const newMap = new Map(annotationsMap);
       newMap.delete(id);
       return newMap;
     });
-    
-    // Обновляем BehaviorSubject для соответствующей страницы
-    this.updatePageSubjects();
-    
-    // Если у нас есть страница и для неё существует BehaviorSubject,
-    // проверяем, остались ли на ней аннотации
-    if (page !== undefined && this.pageAnnotationsSubjects.has(page)) {
-      const pageAnnotations = Array.from(this.annotations().values())
-        .filter(a => a.page === page);
-      
-      // Если аннотаций не осталось, явно отправляем пустой массив
-      // что гарантирует обновление интерфейса
-      this.pageAnnotationsSubjects.get(page)!.next(pageAnnotations);
-    }
+
+    return true;
   }
 
   /**
-   * Создает аннотацию (алиас для addAnnotation)
-   */
-  createAnnotation(annotation: Omit<Annotation, 'id'>): void {
-    this.addAnnotation(annotation);
-  }
-
-  /**
-   * Генерирует уникальный числовой ID
+   * Генерирует уникальный ID для аннотации
+   * @private
    */
   private generateId(): string {
-    // Генерируем уникальный ID с помощью crypto UUID
     return crypto.randomUUID();
   }
-} 
+}

@@ -1,68 +1,89 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { Observable, of, catchError, tap } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { HttpService } from './http.service';
+import {Injectable, inject, computed, Signal} from '@angular/core';
+import { Observable } from 'rxjs';
 import { Page, DocumentData } from '../models/document/page.model';
+import { AnnotationService } from './annotation.service';
+import { Annotation } from '../models/annotation/annotation.model';
+import {toObservable, toSignal} from '@angular/core/rxjs-interop';
+import {HttpService} from "./http.service";
 
 /**
- * Сервис для работы с данными документа
+ * Сервис для работы с данными документа и аннотациями
+ * Использует сигналы Angular для управления состоянием
  */
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
+    private readonly dataUrl = '/pages/data.json';
+  private readonly annotationService = inject(AnnotationService);
   private readonly http = inject(HttpService);
-  private readonly dataUrl = '/pages/data.json';
-  
-  // Кеш данных документа
-  private readonly documentCache = signal<DocumentData | null>(null);
+  private readonly manifest = toSignal(this.http.get<DocumentData>(this.dataUrl));
+
+  // Статические данные документа
+  private readonly documentData = computed(() => this.manifest());
+
+  // Вычисляемые сигналы
+  readonly document = computed(() => this.documentData());
+  readonly pages = computed(() => this.document()?.pages ?? []);
+  readonly documentName = computed(() => this.document()?.name || 'Annotation DEMO');
 
   /**
    * Получает данные документа
    * @returns Observable с данными документа
    */
-  getDocument(): Observable<DocumentData> {
-    // Проверяем кеш перед запросом
-    const cachedData = this.documentCache();
-    if (cachedData) {
-      return of(cachedData);
-    }
-    
-    return this.http.get<DocumentData>(this.dataUrl).pipe(
-      map(data => ({
-        name: data.name,
-        pages: data.pages.map(p => this.mapPageData(p))
-      })),
-      tap(data => this.documentCache.set(data)),
-      catchError(error => {
-        console.error('Error fetching document data:', error);
-        return of({ name: 'Error loading document', pages: [] });
-      })
-    );
+  getDocument(): Signal<DocumentData | undefined> {
+    return this.document;
   }
 
   /**
    * Получает массив страниц документа
    * @returns Observable с массивом страниц
    */
-  getPages(): Observable<Page[]> {
-    return this.getDocument().pipe(
-      map((data: DocumentData) => data.pages),
-      catchError(error => {
-        console.error('Error fetching pages:', error);
-        return of([]);
-      })
-    );
+  getPages(): Signal<Page[]> {
+    return this.pages;
+  }
+
+    /**
+     * Получает title документа
+     * @returns Observable с массивом страниц
+     */
+    getDocumentName(): Signal<string> {
+        return this.documentName;
+    }
+
+  /**
+   * Получает аннотации для указанной страницы
+   * @param page Номер страницы
+   * @returns Observable с массивом аннотаций
+   */
+  getAnnotations(page: number): Annotation[] {
+    return this.annotationService.getAnnotations(page);
   }
 
   /**
-   * Преобразует данные страницы из API в формат приложения
-   * @private
+   * Добавляет новую аннотацию
+   * @param annotation Данные аннотации без ID
+   * @returns Созданная аннотация с ID
    */
-  private mapPageData(p: any): Page {
-    return {
-      number: p.number,
-      imageUrl: `${p.imageUrl}`
-    };
+  addAnnotation(annotation: Omit<Annotation, 'id'>): Annotation {
+    return this.annotationService.addAnnotation(annotation);
   }
-} 
+
+  /**
+   * Обновляет существующую аннотацию
+   * @param annotation Аннотация с обновленными данными
+   * @returns true если аннотация была обновлена, false если аннотация не найдена
+   */
+  updateAnnotation(annotation: Annotation): boolean {
+    return this.annotationService.updateAnnotation(annotation);
+  }
+
+  /**
+   * Удаляет аннотацию по ID
+   * @param id ID аннотации
+   * @returns true если аннотация была удалена, false если аннотация не найдена
+   */
+  deleteAnnotation(id: string): boolean {
+    return this.annotationService.deleteAnnotation(id);
+  }
+}

@@ -1,6 +1,6 @@
 <div class="document-viewer">
   <app-document-header
-    [title]="documentData().name"
+    [title]="title()"
     [currentPage]="currentPageNumber()"
     [totalPages]="totalPages()"
     [canGoNext]="canGoNext()"
@@ -17,7 +17,7 @@
     (saveAnnotations)="onSaveAnnotations()"
     (loadAnnotations)="onLoadAnnotations($event)">
   </app-document-header>
-  
+
   <main class="document-content">
     <ng-container *ngIf="currentPage() as page">
       <app-document-content
@@ -28,17 +28,17 @@
         (annotationCancelled)="onAnnotationModeEnd()">
       </app-document-content>
     </ng-container>
-    
+
     <div *ngIf="!currentPage()" class="page-not-found">
       <h2>Страница не найдена</h2>
       <p>Извините, запрошенная страница не существует</p>
       <button (click)="goToPage(1)">Вернуться к первой странице</button>
     </div>
   </main>
-  
+
   <app-document-pagination
-    [pages]="documentData().pages"
+    [pages]="pages()"
     [currentPage]="currentPageNumber()"
     (pageChange)="goToPage($event)">
   </app-document-pagination>
-</div> 
+</div>

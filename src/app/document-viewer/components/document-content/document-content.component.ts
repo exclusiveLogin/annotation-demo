@@ -1,8 +1,8 @@
-import { Component, Output, EventEmitter, ViewChild, OnDestroy, ElementRef, signal, ChangeDetectionStrategy, 
+import { Component, Output, EventEmitter, ViewChild, OnDestroy, ElementRef, signal, ChangeDetectionStrategy,
          OnChanges, SimpleChanges, AfterViewInit, ChangeDetectorRef, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AnnotationsLayerComponent } from '../annotations-layer/annotations-layer.component';
-import { AnnotationService } from '../../../services/annotation.service';
+import { DataService } from '../../../services/data.service';
 import { AnnotationInputComponent } from '../annotation-input/annotation-input.component';
 import { Page } from '../../../models/document/page.model';
 import { Subscription } from 'rxjs';
@@ -26,7 +26,7 @@ export class DocumentContentComponent implements OnDestroy, OnChanges, AfterView
   readonly pageData = input.required<Page>();
   readonly annotationMode = input<boolean>(false);
   readonly zoomLevel = input<number>(1);
-  
+
   readonly annotationCreated = output<void>();
   readonly annotationCancelled = output<void>();
 
@@ -46,7 +46,7 @@ export class DocumentContentComponent implements OnDestroy, OnChanges, AfterView
   private readonly nextPageData = signal<Page | null>(null);
   private readonly transitionDirection = signal<'left' | 'right'>('right');
 
-  private readonly annotationService = inject(AnnotationService);
+  private readonly dataService = inject(DataService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly mathService = inject(MathService);
 
@@ -64,7 +64,7 @@ export class DocumentContentComponent implements OnDestroy, OnChanges, AfterView
     if (changes['pageData'] && !changes['pageData'].firstChange) {
       const newPage = this.pageData();
       const currentPage = this.currentPageData();
-      
+
       this.nextPageData.set(newPage);
       if (currentPage) {
         this.transitionDirection.set(newPage.number > currentPage.number ? 'right' : 'left');
@@ -77,7 +77,7 @@ export class DocumentContentComponent implements OnDestroy, OnChanges, AfterView
 
   private handleTransitionEnd() {
     const wrapper = this.pageWrapper.nativeElement;
-    
+
     const handleTransition = () => {
       if (wrapper.classList.contains('page-leave')) {
         this.currentPageData.set(this.nextPageData());
@@ -93,7 +93,7 @@ export class DocumentContentComponent implements OnDestroy, OnChanges, AfterView
     };
 
     wrapper.addEventListener('transitionend', handleTransition);
-    
+
     return () => {
       wrapper.removeEventListener('transitionend', handleTransition);
     };
@@ -110,7 +110,7 @@ export class DocumentContentComponent implements OnDestroy, OnChanges, AfterView
 
   onMouseDown(event: MouseEvent): void {
     if (!this.annotationMode() || event.button !== 0) return;
-    
+
     const { x, y } = this.mathService.getCoordinates(event, this.pageContainer.nativeElement, this.zoomLevel());
     this.startX.set(x);
     this.startY.set(y);
@@ -120,7 +120,7 @@ export class DocumentContentComponent implements OnDestroy, OnChanges, AfterView
 
   onMouseMove(event: MouseEvent): void {
     if (!this.drawing() || !this.box()) return;
-    
+
     const { x, y } = this.mathService.getCoordinates(event, this.pageContainer.nativeElement, this.zoomLevel());
     this.box.set(this.mathService.updateBoxDimensions(this.startX(), this.startY(), x, y));
   }
@@ -134,21 +134,21 @@ export class DocumentContentComponent implements OnDestroy, OnChanges, AfterView
   onSave(data: AnnotationData): void {
     const currentBox = this.box();
     if (!currentBox || this.isSaving()) return;
-    
+
     this.isSaving.set(true);
     const pageEl = this.pageContainer.nativeElement;
     const rect = pageEl.getBoundingClientRect();
     const maxWidth = rect.width / this.zoomLevel();
     const maxHeight = rect.height / this.zoomLevel();
-    
+
     const adjustedBox = this.mathService.adjustBoxForAspectRatio(
       currentBox,
       data.aspectRatio,
       maxWidth,
       maxHeight
     );
-    
-    this.annotationService.createAnnotation({
+
+    this.dataService.addAnnotation({
       page: this.pageData().number,
       ...adjustedBox,
       text: data.text,
@@ -178,4 +178,4 @@ export class DocumentContentComponent implements OnDestroy, OnChanges, AfterView
     this.drawing.set(false);
     this.showInput.set(false);
   }
-} 
+}

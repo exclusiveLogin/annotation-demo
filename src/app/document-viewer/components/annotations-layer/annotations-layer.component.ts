@@ -1,7 +1,7 @@
 import { Component, HostListener, ElementRef, ChangeDetectionStrategy, inject, signal, input, effect, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, tap } from 'rxjs';
-import { AnnotationService } from '../../../services/annotation.service';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { DataService } from '../../../services/data.service';
 import { MathService } from '../../../services/math.service';
 import { Annotation } from '../../../models/annotation/annotation.model';
 import { DragState } from '../../../models/common/drag-state.model';
@@ -15,13 +15,13 @@ import { DragState } from '../../../models/common/drag-state.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AnnotationsLayerComponent implements OnInit, OnDestroy {
-  private readonly annotationService = inject(AnnotationService);
+  private readonly dataService = inject(DataService);
   private readonly elementRef = inject(ElementRef);
   private readonly mathService = inject(MathService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   readonly page = input.required<number>();
-  
+
   readonly selectedId = signal<string | null>(null);
   readonly dragState = signal<DragState>({
     isDragging: false,
@@ -30,9 +30,9 @@ export class AnnotationsLayerComponent implements OnInit, OnDestroy {
     originalX: 0,
     originalY: 0
   });
-  
+
   private activeAnnotation = signal<Annotation | null>(null);
-  annotations$!: Observable<Annotation[]>;
+  annotations$: BehaviorSubject<Annotation[]> = new BehaviorSubject<Annotation[]>([]);
 
   private mouseMoveListener: any;
   private mouseUpListener: any;
@@ -50,11 +50,8 @@ export class AnnotationsLayerComponent implements OnInit, OnDestroy {
 
   updateAnnotations(page: number): void {
     this.resetSelection();
-    this.annotations$ = this.annotationService.getAnnotations(page).pipe(
-      tap(() => {
-        this.cdr.markForCheck();
-      })
-    );
+    const annotations =  this.dataService.getAnnotations(page);
+    this.annotations$.next(annotations);
   }
 
   @HostListener('document:click', ['$event'])
@@ -62,7 +59,7 @@ export class AnnotationsLayerComponent implements OnInit, OnDestroy {
     if (!this.selectedId()) return;
 
     const annotationElements = this.elementRef.nativeElement.querySelectorAll('.annotation');
-    
+
     if (!this.mathService.isClickInsideAnyElement(event, annotationElements)) {
       this.resetSelection();
     }
@@ -84,64 +81,64 @@ export class AnnotationsLayerComponent implements OnInit, OnDestroy {
   }
 
   onDelete(id: string): void {
-    this.annotationService.deleteAnnotation(id);
-    this.annotations$ = this.annotationService.getAnnotations(this.page());
+    this.dataService.deleteAnnotation(id);
+    this.updateAnnotations(this.page());
     this.resetSelection();
   }
 
   onMoveStart(event: MouseEvent, annotation: Annotation): void {
     this.activeAnnotation.set(annotation);
     this.selectedId.set(annotation.id);
-    
+
     this.dragState.set(this.mathService.initDragState(event, annotation.x, annotation.y));
-    
+
     this.removeDocumentListeners();
-    
+
     this.mouseMoveListener = (moveEvent: MouseEvent) => {
       if (this.dragState().isDragging) {
         const newPosition = this.mathService.calculateDragPosition(moveEvent, this.dragState());
-        
+
         const updatedAnnotation = {
           ...annotation,
           x: newPosition.x,
           y: newPosition.y
         };
-        
-        this.annotationService.updateAnnotation(updatedAnnotation);
+
+        this.dataService.updateAnnotation(updatedAnnotation);
         this.cdr.markForCheck();
         moveEvent.preventDefault();
       }
     };
-    
+
     this.mouseUpListener = (upEvent: MouseEvent) => {
       if (this.dragState().isDragging) {
         this.dragState.set(this.mathService.resetDragState());
-        
+
         this.removeDocumentListeners();
         upEvent.preventDefault();
       }
     };
-    
+
     document.addEventListener('mousemove', this.mouseMoveListener);
     document.addEventListener('mouseup', this.mouseUpListener);
-    
+
     event.preventDefault();
     event.stopPropagation();
   }
-  
+
   private removeDocumentListeners(): void {
     if (this.mouseMoveListener) {
       document.removeEventListener('mousemove', this.mouseMoveListener);
       this.mouseMoveListener = null;
     }
-    
+
     if (this.mouseUpListener) {
       document.removeEventListener('mouseup', this.mouseUpListener);
       this.mouseUpListener = null;
     }
   }
-  
+
   ngOnDestroy(): void {
     this.removeDocumentListeners();
   }
-} 
+}
