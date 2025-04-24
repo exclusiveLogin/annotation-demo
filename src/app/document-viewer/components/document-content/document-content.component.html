@@ -27,9 +27,7 @@
         *ngIf="showInput()"
         [x]="box()!.x"
         [y]="box()!.y"
-        [width]="box()!.width"
         [height]="box()!.height"
-        [zoomLevel]="zoomLevel()"
         (save)="onSave($event)"
         (cancel)="onCancel()">
       </app-annotation-input>

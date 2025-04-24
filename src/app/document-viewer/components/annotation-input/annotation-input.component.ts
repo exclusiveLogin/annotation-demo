@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, AfterViewInit, ViewChild, ElementRef, ChangeDetectionStrategy, signal, inject, input, output } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, ChangeDetectionStrategy, signal, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AnnotationData } from '../../../models/annotation/annotation.model';
@@ -18,9 +18,7 @@ export class AnnotationInputComponent implements AfterViewInit {
 
   readonly x = input.required<number>();
   readonly y = input.required<number>();
-  readonly width = input.required<number>();
   readonly height = input.required<number>();
-  readonly zoomLevel = input<number>(1);
 
   readonly save = output<AnnotationData>();
   readonly cancel = output<void>();
@@ -33,7 +31,6 @@ export class AnnotationInputComponent implements AfterViewInit {
   readonly originalHeight = signal<number | null>(null);
   readonly previewWidth = signal(200);
   readonly previewHeight = signal(200);
-  readonly showInput = signal(true);
 
   private readonly mathService = inject(MathService);
   private readonly maxPreviewSize = 200;
