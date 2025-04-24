@@ -56,10 +56,11 @@ export class DocumentViewerComponent {
 
   // Вычисляемые свойства
   readonly currentPage = computed(() => {
-    const data = this.documentData();
     const pageNumber = this.currentPageNumber();
     return this.pages()?.find(p => p.number === pageNumber);
   });
+
+  readonly firstPage = computed(() => this.pages()?.at(0)?.number);
 
   readonly totalPages = computed(() => this.documentData()?.pages.length || 0);
 
@@ -74,19 +75,17 @@ export class DocumentViewerComponent {
   constructor() {
     // Эффект для управления валидацией страницы
     effect(() => {
-      const data = this.documentData();
-      const requestedPage = this.currentPageNumber();
-
+      const currentPage = this.currentPage();
+  
       // Если страницы еще не загружены, не делаем ничего
-      if (!data?.pages.length) return;
+      if (!this.pages() || !this.pages().length) return;
 
       // Проверяем, существует ли запрошенная страница
-      const pageExists = data?.pages.some(p => p.number === requestedPage);
+      const pageExists = this.pages().some(p => p.number === currentPage?.number);
 
       // Если запрошенная страница не существует, перенаправляем на первую страницу
-      if (!pageExists) {
-        const firstPage = data?.pages[0]?.number || 1;
-        this.router.navigate(['/page', firstPage]);
+      if (!pageExists && this.firstPage()) {
+        this.router.navigate(['/page', this.firstPage()]);
       }
     });
   }
