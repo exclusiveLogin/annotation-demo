@@ -1,59 +1,57 @@
-# AnnotationDemo
+# annotation-demo — Angular 19 Document Annotation Viewer
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.8.
+Демо-приложение для просмотра документов с интерактивным слоем аннотаций. Реализует многослойную архитектуру отображения: контент документа, слой аннотаций, навигация по страницам — каждый слой независим.
 
-## Development server
+## Возможности
 
-To start a local development server, run:
+- **Слой аннотаций** — создание и отображение аннотаций поверх контента документа
+- **Ввод аннотаций** — компонент `annotation-input` для добавления новых записей
+- **Навигация** — `pagination` компонент для перехода между страницами документа
+- **Заголовок документа** — `document-header` с метаданными
+- **Автодеплой** — GitHub Actions → GitHub Pages (`.github/workflows/gh-pages.yml`)
 
-```bash
-ng serve
+## Архитектура
+
+```
+annotation-demo/
+├── src/app/
+│   ├── annotation-input/         # Компонент ввода аннотации
+│   ├── annotations-layer/        # Слой отображения всех аннотаций (overlay)
+│   ├── document-content/         # Основной контент документа
+│   ├── document-header/          # Заголовок и метаданные
+│   └── pagination/               # Постраничная навигация
+├── .github/workflows/
+│   └── gh-pages.yml              # CI/CD → автодеплой на GitHub Pages
+└── angular.json / tsconfig.json
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Стек технологий
 
-## Code scaffolding
+| Технология | Версия |
+|-----------|--------|
+| Angular | 19 |
+| TypeScript | 5.x |
+| GitHub Actions | CI/CD деплой |
+| GitHub Pages | Хостинг |
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## Запуск
 
 ```bash
-ng build
+npm install
+ng serve            # localhost:4200
+
+ng build --prod     # продакшн сборка
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Деплой
 
-## Running unit tests
+При пуше в `main` — автоматический деплой на GitHub Pages через GitHub Actions.
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Концепция слоёв
 
-```bash
-ng test
-```
+Архитектура построена на принципе независимых слоёв (layers pattern):
+- **content layer** — рендеринг страниц документа
+- **annotation layer** — прозрачный overlay с позиционированием аннотаций
+- **input layer** — управление вводом пользователя
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Такой подход позволяет переиспользовать annotation layer с любым типом документов.
